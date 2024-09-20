@@ -12,8 +12,6 @@ import (
 
 const pngSignature = "\x89PNG\r\n\x1a\n"
 
-var removeData []string
-
 type chunk struct {
 	Length uint32
 	Type   [4]byte
@@ -22,25 +20,19 @@ type chunk struct {
 }
 
 func main() {
-	inputDir := "process1"  // 입력 디렉토리 경로
-	outputDir := "process2" // 출력 디렉토리 경로
-
-	removeData = append(removeData, "<lora:Hyper-SDXL-8steps-lora:1>")
-	removeData = append(removeData, "solo focus,simple background, depth of field")
-
 	// 출력 디렉토리 생성
-	err := os.MkdirAll(outputDir, os.ModePerm)
+	err := os.MkdirAll(GetConfig().InputDir, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
 
-	err = filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(GetConfig().InputDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
 		if !info.IsDir() && strings.ToLower(filepath.Ext(path)) == ".png" {
-			err := processPNGFile(path, filepath.Join(outputDir, info.Name()))
+			err := processPNGFile(path, filepath.Join(GetConfig().OutputDir, info.Name()))
 			if err != nil {
 				fmt.Printf("Error processing %s: %v\n", path, err)
 			}
@@ -135,7 +127,7 @@ func modifyTextChunk(data []byte) []byte {
 	}
 	key, value := parts[0], parts[1]
 
-	for _, data := range removeData {
+	for _, data := range GetConfig().RemoveString {
 		value = bytes.Replace(value, []byte(data), nil, -1)
 	}
 
