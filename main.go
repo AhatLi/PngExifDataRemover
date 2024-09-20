@@ -68,8 +68,7 @@ func processPNGFile(inputPath string, outputPath string) error {
 			break
 		}
 
-		fmt.Println(string(c.Type[:]))
-		if string(c.Type[:]) == "iTXt" {
+		if string(c.Type[:]) == "iTXt" || string(c.Type[:]) == "tEXt" {
 			modifiedData := modifyTextChunk(c.Data)
 			c.Length = uint32(len(modifiedData))
 			c.Data = modifiedData
